@@ -18,12 +18,17 @@
       box-sizing: border-box;
     }
 
+    html {
+      scroll-behavior: smooth;
+    }
+
     body {
       margin: 0;
       padding-top: 86px;
       background: var(--background);
       color: var(--text);
       font-family: "Segoe UI", Arial, sans-serif;
+      overflow-x: hidden;
     }
 
     /* --- MENÚ SUPERIOR --- */
@@ -80,39 +85,120 @@
     main {
       width: min(1100px, 90%);
       margin: 0 auto;
-      padding: 54px 0 70px;
+      padding: 40px 0 70px;
     }
 
+    /* --- SECCIÓN INTRODUCCIÓN --- */
     .intro {
-      margin-bottom: 30px;
+      position: relative;
+      margin-bottom: 50px;
       text-align: center;
+      padding: 30px 0 10px;
+    }
+
+    .intro-content {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) 0.8s forwards;
     }
 
     .intro h1 {
-      margin: 0 0 10px;
+      margin: 0 0 14px;
       color: var(--navy);
-      font-size: clamp(2rem, 5vw, 2.8rem);
+      font-size: clamp(3rem, 7vw, 4.8rem);
+      font-weight: 800;
+      letter-spacing: -1px;
+      line-height: 1.1;
     }
 
     .intro p {
       margin: 0;
-      line-height: 1.6;
+      font-size: clamp(1.2rem, 3vw, 1.6rem);
+      color: var(--blue);
+      font-weight: 500;
     }
 
-    /* --- REJILLA DE LA GALERÍA --- */
+    /* DRON PRINCIPAL */
+    .drone-container {
+      position: absolute;
+      top: -10px;
+      left: -90px;
+      z-index: 5;
+      pointer-events: none;
+      animation: flyDrone 5.5s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
+    }
+
+    .drone-svg {
+      width: 70px;
+      height: 45px;
+    }
+
+    .propeller {
+      transform-origin: center;
+      animation: spinPropeller 0.08s linear infinite;
+    }
+
+    .beacon {
+      animation: blinkLed 0.4s ease-in-out infinite alternate;
+    }
+
+    @keyframes flyDrone {
+      0% {
+        transform: translate(0, 30px) scale(0.7) rotate(6deg);
+        opacity: 0;
+      }
+      15% { opacity: 1; }
+      45% { transform: translate(calc(45vw + 20px), -5px) scale(1.05) rotate(-2deg); }
+      75% { opacity: 1; }
+      100% {
+        transform: translate(calc(100vw + 120px), -25px) scale(0.8) rotate(4deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes spinPropeller {
+      from { transform: scaleX(1); }
+      to { transform: scaleX(-1); }
+    }
+
+    @keyframes blinkLed {
+      from { fill: #2583e8; opacity: 0.3; }
+      to { fill: #00f0ff; opacity: 1; }
+    }
+
+    @keyframes fadeInUp {
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* --- REJILLA Y TARJETAS DE LA GALERÍA --- */
     .gallery {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 20px;
-      margin-bottom: 60px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 32px;
+      margin-bottom: 40px;
     }
 
     .card {
+      position: relative;
       overflow: hidden;
-      aspect-ratio: 1;
-      border-radius: 16px;
+      aspect-ratio: 1 / 1;
+      border-radius: 20px;
       background: #dceafa;
-      box-shadow: 0 8px 22px rgb(16 42 67 / 12%);
+      box-shadow: 0 12px 30px rgb(16 42 67 / 12%);
+      cursor: pointer;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                  transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+      will-change: opacity, transform;
+    }
+
+    .card.reveal {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .card img {
@@ -120,12 +206,329 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      transition: transform 0.3s ease;
+      transition: transform 0.4s ease;
     }
 
     .card:hover img {
-      transform: scale(1.05);
+      transform: scale(1.06);
     }
+
+    /* Indicador visual de clic/zoom */
+    .card::after {
+      content: "🔍 Ver en grande";
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 42, 67, 0.4);
+      color: #fff;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+      font-size: 1.05rem;
+    }
+
+    .card:hover::after {
+      opacity: 1;
+    }
+
+    /* --- FRASES INTERCALADAS Y ANIMACIONES --- */
+    .interspersed-quote {
+      text-align: center;
+      margin: 50px 0 60px;
+      padding: 30px 20px;
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                  transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .interspersed-quote.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .quote-text {
+      font-size: clamp(1.3rem, 3.5vw, 2.1rem);
+      font-weight: 700;
+      color: var(--navy);
+      max-width: 850px;
+      margin: 0 auto 20px;
+      line-height: 1.35;
+    }
+
+    .quote-subtext {
+      font-size: clamp(1rem, 2.2vw, 1.25rem);
+      color: #486581;
+      max-width: 750px;
+      margin: 10px auto 20px;
+      line-height: 1.5;
+      font-weight: 500;
+    }
+
+    .animation-wrapper {
+      position: relative;
+      height: 110px;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+
+    /* Animación 1: Barco y Dron */
+    .boat-svg {
+      position: absolute;
+      bottom: 10px;
+      left: -100px;
+      width: 110px;
+      animation: boatPass 6.5s linear infinite;
+    }
+
+    .filming-drone {
+      position: absolute;
+      top: 5px;
+      left: -90px;
+      width: 45px;
+      animation: droneFollow 6.5s linear infinite;
+    }
+
+    .wave {
+      animation: waveMove 0.6s ease-in-out infinite alternate;
+    }
+
+    @keyframes boatPass {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(700px); }
+    }
+
+    @keyframes droneFollow {
+      0% { transform: translate(0, 0) rotate(-3deg); }
+      50% { transform: translate(350px, 8px) rotate(4deg); }
+      100% { transform: translate(700px, -2deg); }
+    }
+
+    @keyframes waveMove {
+      from { transform: translateY(0); }
+      to { transform: translateY(3px); }
+    }
+
+    /* Animación 2: Papeleo y Sello */
+    .paper-stamp-box {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100px;
+      position: relative;
+    }
+
+    .paper-sheet {
+      width: 60px;
+      height: 75px;
+      background: #fff;
+      border: 2px solid var(--navy);
+      border-radius: 6px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.06);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 10px 8px;
+    }
+
+    .paper-line {
+      height: 3px;
+      background: #bcccdc;
+      border-radius: 2px;
+    }
+
+    .stamp-tool {
+      position: absolute;
+      top: -30px;
+      transform-origin: bottom center;
+      animation: stampAction 2.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+    }
+
+    .stamped-mark {
+      position: absolute;
+      bottom: 12px;
+      right: 8px;
+      width: 22px;
+      height: 22px;
+      border: 2px solid #2583e8;
+      border-radius: 50%;
+      opacity: 0;
+      animation: markAppear 2.2s ease infinite;
+    }
+
+    @keyframes stampAction {
+      0%, 40%, 100% { transform: translateY(-15px) rotate(-10deg); opacity: 0.8; }
+      50% { transform: translateY(22px) rotate(0deg); opacity: 1; }
+      55% { transform: translateY(18px); }
+    }
+
+    @keyframes markAppear {
+      0%, 48% { opacity: 0; transform: scale(0.4); }
+      52%, 90% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; }
+    }
+
+    /* Animación 3: Cohete */
+    .rocket-box {
+      height: 120px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .rocket-svg {
+      width: 50px;
+      height: 80px;
+      animation: rocketLaunch 2.6s ease-in-out infinite;
+    }
+
+    .rocket-fire {
+      animation: flameFlicker 0.15s ease-in-out infinite alternate;
+      transform-origin: top center;
+    }
+
+    @keyframes rocketLaunch {
+      0% {
+        transform: translateY(40px) scale(0.8);
+        opacity: 0;
+      }
+      25% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+      50% {
+        transform: translateY(-8px) scale(1.02);
+      }
+      80% {
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-140px) scale(1.1);
+        opacity: 0;
+      }
+    }
+
+    @keyframes flameFlicker {
+      from { transform: scaleY(1) scaleX(0.9); }
+      to { transform: scaleY(1.3) scaleX(1.1); }
+    }
+
+    /* --- SECCIÓN DE ESTADÍSTICAS ANIMADAS --- */
+    .stats-section {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin: 60px 0;
+      padding: 36px 20px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 10px 30px rgb(16 42 67 / 8%);
+      text-align: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .stats-section.reveal {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .stat-number {
+      font-size: clamp(2.2rem, 5vw, 3.4rem);
+      font-weight: 800;
+      color: var(--blue);
+      margin-bottom: 6px;
+    }
+
+    .stat-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--navy);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* --- LIGHTBOX (VISUALIZADOR MODAL) --- */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(10, 25, 41, 0.92);
+      backdrop-filter: blur(10px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+
+    .lightbox.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .lightbox-img {
+      max-width: 90vw;
+      max-height: 85vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+      object-fit: contain;
+      transform: scale(0.95);
+      transition: transform 0.3s ease;
+    }
+
+    .lightbox.active .lightbox-img {
+      transform: scale(1);
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 24px;
+      right: 28px;
+      background: none;
+      border: none;
+      color: #fff;
+      font-size: 2.2rem;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .lightbox-close:hover {
+      opacity: 1;
+    }
+
+    .lightbox-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.15);
+      border: none;
+      color: #fff;
+      font-size: 1.8rem;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s ease;
+    }
+
+    .lightbox-arrow:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .lightbox-prev { left: 24px; }
+    .lightbox-next { right: 24px; }
 
     /* --- SECCIÓN DE CONTACTO --- */
     .contact {
@@ -133,9 +536,17 @@
       align-items: center;
       justify-content: center;
       gap: 28px;
-      padding: 36px 24px;
-      border-radius: 20px;
+      padding: 40px 24px;
+      border-radius: 24px;
       background: var(--light-blue);
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.8s ease, transform 0.8s ease;
+    }
+
+    .contact.reveal {
+      opacity: 1;
+      transform: translateY(0);
     }
 
     .profile-photo {
@@ -160,60 +571,35 @@
     .contact-details a {
       color: var(--blue);
       text-decoration: none;
+      font-weight: 600;
     }
 
-    /* --- DISEÑO RESPONSIVO --- */
-    @media (max-width: 900px) {
+    /* --- RESPONSIVO --- */
+    @media (max-width: 768px) {
       .gallery {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: 1fr;
+        gap: 24px;
       }
-    }
 
-    @media (max-width: 650px) {
-      .gallery {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+      .stats-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
       }
     }
 
     @media (max-width: 480px) {
-      body {
-        padding-top: 78px;
-      }
-
-      .navbar {
-        padding: 12px 5%;
-      }
-
-      .logo-text {
-        font-size: 1.1rem;
-      }
-
-      .logo-img {
-        width: 38px;
-        height: 38px;
-      }
-
-      .nav-links {
-        gap: 14px;
-      }
-
-      .nav-links a {
-        font-size: 0.82rem;
-      }
-
-      main {
-        padding-top: 38px;
-      }
-
-      .contact {
-        flex-direction: column;
-        text-align: center;
-      }
-
-      .profile-photo {
-        width: 120px;
-        height: 120px;
-      }
+      body { padding-top: 78px; }
+      .navbar { padding: 12px 5%; }
+      .logo-text { font-size: 1.1rem; }
+      .logo-img { width: 38px; height: 38px; }
+      .nav-links { gap: 14px; }
+      .nav-links a { font-size: 0.82rem; }
+      main { padding-top: 20px; }
+      .contact { flex-direction: column; text-align: center; }
+      .profile-photo { width: 120px; height: 120px; }
+      .lightbox-arrow { width: 40px; height: 40px; font-size: 1.4rem; }
+      .lightbox-prev { left: 10px; }
+      .lightbox-next { right: 10px; }
     }
   </style>
 </head>
@@ -228,45 +614,146 @@
     
     <nav class="nav-links" aria-label="Navegación principal">
       <a href="#contacto">Información de contacto</a>
-      <!-- LINK DE INSTAGRAM REPARADO CORRECTAMENTE AQUÍ -->
       <a href="https://www.instagram.com/aero_atlanticpro/" target="_blank" rel="noopener noreferrer">Instagram</a>
     </nav>
   </header>
 
   <main>
+    <!-- INTRODUCCIÓN -->
     <section class="intro" aria-labelledby="gallery-title">
-      <h1 id="gallery-title">Nuestra Galería</h1>
-      <p>A vista de pájaro.</p>
+      <div class="drone-container" aria-hidden="true">
+        <svg class="drone-svg" viewBox="0 0 100 60">
+          <rect x="38" y="22" width="24" height="16" rx="6" fill="#102a43" />
+          <circle cx="50" cy="36" r="4" fill="#627d98" />
+          <circle cx="50" cy="38" r="2.5" class="beacon" />
+          <path d="M 22 16 L 42 26 M 78 16 L 58 26 M 22 44 L 42 34 M 78 44 L 58 34" stroke="#102a43" stroke-width="3.5" stroke-linecap="round" />
+          <rect x="17" y="11" width="10" height="10" rx="2" fill="#2583e8" />
+          <rect x="73" y="11" width="10" height="10" rx="2" fill="#2583e8" />
+          <rect x="17" y="39" width="10" height="10" rx="2" fill="#2583e8" />
+          <rect x="73" y="39" width="10" height="10" rx="2" fill="#2583e8" />
+          <ellipse cx="22" cy="12" rx="16" ry="2.5" fill="#829ab1" class="propeller" />
+          <ellipse cx="78" cy="12" rx="16" ry="2.5" fill="#829ab1" class="propeller" />
+          <ellipse cx="22" cy="40" rx="16" ry="2.5" fill="#829ab1" class="propeller" />
+          <ellipse cx="78" cy="40" rx="16" ry="2.5" fill="#829ab1" class="propeller" />
+        </svg>
+      </div>
+
+      <div class="intro-content">
+        <h1 id="gallery-title">Nuestra Galería</h1>
+        <p>A vista de pájaro.</p>
+      </div>
     </section>
 
-    <section class="gallery" aria-label="Galería de imágenes">
-      <div class="card">
-        <img src="H.jpg" alt="Imagen H">
+    <!-- BLOQUE 1: FOTOS 1 Y 2 -->
+    <section class="gallery" aria-label="Galería imágenes bloque 1">
+      <div class="card"><img src="H.jpg" alt="Imagen H"></div>
+      <div class="card"><img src="B.jpg" alt="Imagen B"></div>
+    </section>
+
+    <!-- INTERCALADO 1: BARCO Y DRON -->
+    <div class="interspersed-quote">
+      <div class="quote-text">"Expertos en el aire, con los pies en la tierra."</div>
+      <div class="animation-wrapper">
+        <svg width="100%" height="20" style="position:absolute; bottom:0; left:0;">
+          <path class="wave" d="M 0 10 Q 25 0 50 10 T 100 10 T 150 10 T 200 10 T 250 10 T 300 10 T 350 10 T 400 10 T 450 10 T 500 10" fill="none" stroke="#2583e8" stroke-width="2.5"/>
+        </svg>
+
+        <svg class="filming-drone" viewBox="0 0 100 60">
+          <path d="M 30 50 L 10 90 L 80 90 Z" fill="rgba(37, 131, 232, 0.15)" />
+          <rect x="38" y="22" width="24" height="16" rx="6" fill="#102a43" />
+          <path d="M 22 16 L 42 26 M 78 16 L 58 26 M 22 44 L 42 34 M 78 44 L 58 34" stroke="#102a43" stroke-width="3" />
+          <ellipse cx="22" cy="12" rx="14" ry="2" fill="#829ab1" class="propeller" />
+          <ellipse cx="78" cy="12" rx="14" ry="2" fill="#829ab1" class="propeller" />
+        </svg>
+
+        <svg class="boat-svg" viewBox="0 0 120 70">
+          <path d="M 10 45 L 30 62 L 95 62 L 110 45 Z" fill="#102a43" />
+          <rect x="40" y="26" width="35" height="19" rx="3" fill="#2583e8" />
+          <circle cx="50" cy="35" r="3.5" fill="#fff" />
+          <circle cx="65" cy="35" r="3.5" fill="#fff" />
+          <line x1="75" y1="26" x2="75" y2="12" stroke="#102a43" stroke-width="2.5" />
+        </svg>
       </div>
-      <div class="card">
-        <img src="B.jpg" alt="Imagen B">
+    </div>
+
+    <!-- BLOQUE 2: FOTOS 3 Y 4 -->
+    <section class="gallery" aria-label="Galería imágenes bloque 2">
+      <div class="card"><img src="P.jpg" alt="Imagen P"></div>
+      <div class="card"><img src="A.jpg" alt="Imagen A"></div>
+    </section>
+
+    <!-- INTERCALADO 2: PAPELEO Y SELLO -->
+    <div class="interspersed-quote">
+      <div class="quote-text">Servicios audiovisuales aéreos de gran calidad</div>
+      <div class="quote-subtext">Tecnología C5 en manos de un operador certificado.</div>
+      <div class="paper-stamp-box">
+        <div class="paper-sheet">
+          <div class="paper-line" style="width: 80%;"></div>
+          <div class="paper-line" style="width: 100%;"></div>
+          <div class="paper-line" style="width: 90%;"></div>
+          <div class="paper-line" style="width: 60%;"></div>
+          <div class="stamped-mark"></div>
+        </div>
+        <svg class="stamp-tool" width="40" height="50" viewBox="0 0 40 50">
+          <path d="M 15 0 L 25 0 L 23 20 L 35 20 L 35 32 L 5 32 L 5 20 L 17 20 Z" fill="#102a43" />
+          <rect x="3" y="32" width="34" height="8" rx="2" fill="#2583e8" />
+        </svg>
       </div>
-      <div class="card">
-        <img src="P.jpg" alt="Imagen P">
+    </div>
+
+    <!-- BLOQUE 3: FOTOS 5 Y 6 -->
+    <section class="gallery" aria-label="Galería imágenes bloque 3">
+      <div class="card"><img src="IMG_3336.jpg" alt="Imagen 3336"></div>
+      <div class="card"><img src="IMG_3335.jpg" alt="Imagen 3335"></div>
+    </section>
+
+    <!-- INTERCALADO 3: COHETE -->
+    <div class="interspersed-quote">
+      <div class="quote-text">¿Tienes un proyecto en mente? Despeguemos juntos.</div>
+      <div class="rocket-box">
+        <svg class="rocket-svg" viewBox="0 0 60 90">
+          <path d="M 30 5 C 42 20 45 45 45 60 L 15 60 C 15 45 18 20 30 5 Z" fill="#102a43" />
+          <path d="M 15 45 L 2 62 L 15 60 Z" fill="#2583e8" />
+          <path d="M 45 45 L 58 62 L 45 60 Z" fill="#2583e8" />
+          <circle cx="30" cy="30" r="6" fill="#eaf4ff" stroke="#2583e8" stroke-width="2" />
+          <path class="rocket-fire" d="M 20 60 Q 30 85 30 85 Q 30 85 40 60 Z" fill="#ff7e1d" />
+          <path class="rocket-fire" d="M 24 60 Q 30 75 30 75 Q 30 75 36 60 Z" fill="#ffd000" />
+        </svg>
       </div>
-      <div class="card">
-        <img src="A.jpg" alt="Imagen A">
+    </div>
+
+    <!-- BLOQUE 4: FOTOS 7 Y 8 -->
+    <section class="gallery" aria-label="Galería imágenes bloque 4">
+      <div class="card"><img src="IMG_3334.jpg" alt="Imagen 3334"></div>
+      <div class="card"><img src="IMG_3333.jpg" alt="Imagen 3333"></div>
+    </section>
+
+    <!-- FUNCIONALIDAD 6: ESTADÍSTICAS ANIMADAS -->
+    <section class="stats-section" id="stats">
+      <div class="stat-item">
+        <div class="stat-number" data-target="150">+0</div>
+        <div class="stat-label">Horas de vuelo</div>
       </div>
-      <div class="card">
-        <img src="IMG_3336.jpg" alt="Imagen 3336">
+      <div class="stat-item">
+        <div class="stat-number" data-target="100">0%</div>
+        <div class="stat-label">Operador C5 / AESA</div>
       </div>
-      <div class="card">
-        <img src="IMG_3335.jpg" alt="Imagen 3335">
-      </div>
-      <div class="card">
-        <img src="IMG_3334.jpg" alt="Imagen 3334">
-      </div>
-      <div class="card">
-        <img src="IMG_3333.jpg" alt="Imagen 3333">
+      <div class="stat-item">
+        <div class="stat-number" data-target="4">0K</div>
+        <div class="stat-label">Resolución Ultra HD</div>
       </div>
     </section>
   </main>
 
+  <!-- FUNCIONALIDAD 1: LIGHTBOX (VISUALIZADOR MODAL) -->
+  <div class="lightbox" id="lightbox" aria-hidden="true">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar visualizador">&times;</button>
+    <button class="lightbox-arrow lightbox-prev" id="lightboxPrev" aria-label="Imagen anterior">&#10094;</button>
+    <img src="" alt="Vista ampliada" class="lightbox-img" id="lightboxImg">
+    <button class="lightbox-arrow lightbox-next" id="lightboxNext" aria-label="Siguiente imagen">&#10095;</button>
+  </div>
+
+  <!-- SECCIÓN DE CONTACTO -->
   <footer class="contact" id="contacto">
     <img
       class="profile-photo"
@@ -279,5 +766,126 @@
       <p>Correo: <a href="mailto:gregorio8000@gmail.com">gregorio8000@gmail.com</a></p>
     </div>
   </footer>
+
+  <!-- SCRIPTS NATIVOS -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      /* --- 1. REVEAL AL HACER SCROLL --- */
+      const observerOptions = {
+        root: null,
+        rootMargin: "0px 0px -60px 0px",
+        threshold: 0.15
+      };
+
+      const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("reveal");
+            
+            // Si la sección visible son las estadísticas, arrancar el conteo
+            if (entry.target.classList.contains("stats-section")) {
+              startCounterAnimation();
+            }
+
+            observer.unobserve(entry.target);
+          }
+        });
+      }, observerOptions);
+
+      const elementsToAnimate = document.querySelectorAll(".card, .contact, .interspersed-quote, .stats-section");
+      elementsToAnimate.forEach(el => observer.observe(el));
+
+      /* --- 2. CONTADOR ANIMADO --- */
+      let counterStarted = false;
+      function startCounterAnimation() {
+        if (counterStarted) return;
+        counterStarted = true;
+
+        const statNumbers = document.querySelectorAll(".stat-number");
+        statNumbers.forEach(el => {
+          const target = parseInt(el.getAttribute("data-target"));
+          const isPercent = el.textContent.includes("%");
+          const isK = el.textContent.includes("K");
+          const isPlus = el.textContent.includes("+");
+          
+          let current = 0;
+          const duration = 1500; // ms
+          const stepTime = 20;
+          const steps = duration / stepTime;
+          const increment = target / steps;
+
+          const timer = setInterval(() => {
+            current += increment;
+            if (current >= target) {
+              current = target;
+              clearInterval(timer);
+            }
+            
+            let suffix = "";
+            let prefix = "";
+            if (isPercent) suffix = "%";
+            if (isK) suffix = "K";
+            if (isPlus) prefix = "+";
+
+            el.textContent = `${prefix}${Math.floor(current)}${suffix}`;
+          }, stepTime);
+        });
+      }
+
+      /* --- 3. LIGHTBOX INTERACTIVO --- */
+      const cards = Array.from(document.querySelectorAll(".card img"));
+      const lightbox = document.getElementById("lightbox");
+      const lightboxImg = document.getElementById("lightboxImg");
+      const closeBtn = document.getElementById("lightboxClose");
+      const prevBtn = document.getElementById("lightboxPrev");
+      const nextBtn = document.getElementById("lightboxNext");
+
+      let currentIndex = 0;
+
+      function openLightbox(index) {
+        currentIndex = index;
+        lightboxImg.src = cards[currentIndex].src;
+        lightboxImg.alt = cards[currentIndex].alt;
+        lightbox.classList.add("active");
+        lightbox.setAttribute("aria-hidden", "false");
+      }
+
+      function closeLightbox() {
+        lightbox.classList.remove("active");
+        lightbox.setAttribute("aria-hidden", "true");
+      }
+
+      function showPrev() {
+        currentIndex = (currentIndex - 1 + cards.length) % cards.length;
+        lightboxImg.src = cards[currentIndex].src;
+      }
+
+      function showNext() {
+        currentIndex = (currentIndex + 1) % cards.length;
+        lightboxImg.src = cards[currentIndex].src;
+      }
+
+      cards.forEach((img, index) => {
+        img.closest(".card").addEventListener("click", () => openLightbox(index));
+      });
+
+      closeBtn.addEventListener("click", closeLightbox);
+      prevBtn.addEventListener("click", (e) => { e.stopPropagation(); showPrev(); });
+      nextBtn.addEventListener("click", (e) => { e.stopPropagation(); showNext(); });
+
+      lightbox.addEventListener("click", (e) => {
+        if (e.target === lightbox) closeLightbox();
+      });
+
+      // Control con teclado
+      document.addEventListener("keydown", (e) => {
+        if (!lightbox.classList.contains("active")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") showPrev();
+        if (e.key === "ArrowRight") showNext();
+      });
+    });
+  </script>
+
 </body>
 </html>
